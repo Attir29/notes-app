@@ -1,9 +1,8 @@
 import express from "express";
-import { sayHello } from "../handlers/helloHandlers";
+import { sayHello } from "../handlers/helloHandlers.js";
 
+const helloRoute = express.Router();
 
-const helloRouter = express.Router();
+helloRoute.get("/", sayHello);
 
-helloRouter.get("/", sayHello);
-
-export default hellorouter;
+export default helloRoute;
