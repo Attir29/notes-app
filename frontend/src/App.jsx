@@ -1,7 +1,26 @@
+import { useEffect } from "react";
 import { useState } from "react";
 
 function App() {
   const [notes, setNotes] = useState([]);
+
+  const fetchNotes = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/notes");
+
+      const result = await res.json();
+
+      setNotes(result.data)
+
+      console.log(result);
+    } catch (error) {
+      console.error("error", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotes();
+  }, []);
 
   const addNote = (title, content) => {
     console.log(title);
