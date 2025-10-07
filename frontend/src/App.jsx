@@ -1,20 +1,19 @@
-import { useEffect } from "react";
-import { useState } from "react";
+import { useState, useEffect, use } from "react";
 
 function App() {
   const [notes, setNotes] = useState([]);
 
+  const baseUrl = "https://notes-app-nu-wine.vercel.app";
+
   const fetchNotes = async () => {
     try {
-      const res = await fetch("http://localhost:3000/notes");
+      const res = await fetch(`${baseUrl}/notes`);
 
       const result = await res.json();
 
-      setNotes(result.data)
-
-      console.log(result);
-    } catch (error) {
-      console.error("error", error);
+      setNotes(result.data);
+    } catch {
+      console.log("Error fetching notes");
     }
   };
 
@@ -22,24 +21,64 @@ function App() {
     fetchNotes();
   }, []);
 
-  const addNote = (title, content) => {
-    console.log(title);
-    console.log(content);
-    setNotes([]);
+  const addNote = async (newTitle, newContent) => {
+    try {
+      const res = await fetch(`${baseUrl}/notes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: newTitle, content: newContent }),
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        setNotes([...notes, result.data]);
+      }
+    } catch (error) {
+      console.log("Error adding note", error);
+    }
   };
 
-  const handleDelete = (id) => {
-    console.log(id);
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch(`${baseUrl}/notes/${id}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setNotes((notes) => notes.filter((note) => note.id !== id));
+      }
+      fetchNotes();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const getNoteById = (id) => {
     console.log(id);
   };
 
-  const updateNote = (id, newTitle, newContent) => {
-    console.log(id);
-    console.log(newTitle);
-    console.log(newContent);
+  const handleUpdateNote = async (id, updateTitle, updateContent) => {
+    try {
+      const res = await fetch(`${baseUrl}/notes/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: updateTitle,
+          content: updateContent,
+        }),
+      });
+
+      const result = await res.json();
+
+      setNotes((prevNotes) => {
+        return prevNotes.map((note) => (note.id === id ? result.data : note));
+      });
+
+      console.log(result);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -50,7 +89,7 @@ function App() {
         <NoteList
           notes={notes}
           onDelete={handleDelete}
-          onUpdate={updateNote}
+          onUpdate={handleUpdateNote}
           onGetById={getNoteById}
         />
       </main>
@@ -113,30 +152,76 @@ const NoteForm = ({ onAddNote }) => {
 };
 
 const NoteItem = ({ note, onDelete, onUpdate }) => {
-  console.log(note);
-  console.log(onDelete);
-  console.log(onUpdate);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(note.title);
+  const [editContent, setEditContent] = useState(note.content);
+
+  const handleEdit = () => setIsEditing(true);
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditTitle(note.title);
+    setEditContent(note.content);
+  };
 
   return (
     <div className="rounded-lg shadow-md bg-white w-[300px] p-5">
-      <p className="font-medium text-xl">{note.title}</p>
-      <p className="text-sm text-gray-500">
-        ~{showFormattedDate(note.createAt)}
-      </p>
-      <p className="mt-2">{note.content}</p>
-      <div className="mt-4 flex gap-2">
-        <button className="bg-yellow-500 text-white px-3 py-1 rounded">
-          Edit
-        </button>
-        <button className="bg-red-500 text-white px-3 py-1 rounded">
-          Delete
-        </button>
-      </div>
+      {isEditing ? (
+        <>
+          <input
+            className="rounded-sm outline outline-gray-400 p-3 mb-1 w-full"
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+          />
+          <textarea
+            className="rounded-sm outline outline-gray-400 p-3 w-full"
+            value={editContent}
+            onChange={(e) => setEditContent(e.target.value)}
+          />
+          <button
+            className="bg-gray-400 text-white px-3 py-1 rounded mr-2 mx-1"
+            onClick={handleCancel}
+          >
+            cancel
+          </button>
+          <button
+            className="bg-green-500 text-white px-3 py-1 rounded"
+            onClick={() => {
+              onUpdate(note.id, editTitle, editContent);
+              setIsEditing(false);
+            }}
+          >
+            Save
+          </button>
+        </>
+      ) : (
+        <>
+          <p className="font-medium text-xl">{note.title}</p>
+          <p className="text-sm text-gray-500">
+            ~{showFormattedDate(note.created_at)}
+          </p>
+          <p className="mt-2">{note.content}</p>
+          <div className="mt-4 flex gap-2">
+            <button
+              className="bg-yellow-500 text-white px-3 py-1 rounded"
+              onClick={handleEdit}
+            >
+              Edit
+            </button>
+            <button
+              className="bg-red-500 text-white px-3 py-1 rounded"
+              onClick={() => onDelete(note.id)}
+            >
+              Delete
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 };
 
-const NoteList = ({ notes }) => {
+const NoteList = ({ notes, onDelete, onUpdate }) => {
   return (
     <section className="container py-8">
       <h2 className="inline-flex items-center gap-2 text-2xl font-medium mb-6">
@@ -145,7 +230,14 @@ const NoteList = ({ notes }) => {
       </h2>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {notes.length > 0 ? (
-          notes.map((note) => <NoteItem key={note.id} note={note} />)
+          notes.map((note) => (
+            <NoteItem
+              key={note.id}
+              note={note}
+              onDelete={onDelete}
+              onUpdate={onUpdate}
+            />
+          ))
         ) : (
           <h1>Data Kosong</h1>
         )}
