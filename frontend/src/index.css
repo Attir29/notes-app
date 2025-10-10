@@ -1,1 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=B612+Mono:wght@400;700&display=swap');
+
+@layer theme {
+  :root {
+    --font-ibmplex: 'IBM Plex Mono', monospace;
+    --font-b612mono: 'B612 Mono', monospace;
+  }
+}
+
+@layer base {
+  .font-ibmplex {
+    font-family: var(--font-ibmplex);
+  }
+  .font-b612mono {
+    font-family: var(--font-b612mono);
+  }
+}
+
+
 @import "tailwindcss";

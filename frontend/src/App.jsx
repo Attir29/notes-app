@@ -82,7 +82,7 @@ function App() {
   );
 
   return (
-    <div className="bg-[#0a0a0a] text-gray-100 h-fit">
+    <div className="bg-[#0a0a0a] text-gray-100 h-fit font-ibmplex">
       <Navbar />
       <main className="flex flex-col items-center px-4 sm:px-6 lg:px-8 h-fit min-h-screen pt-52">
         <img src="/title2.svg" alt="" className="w-98 mb-12" />
@@ -131,7 +131,7 @@ const Navbar = () => (
         className="w-9 sm:w-11 md:w-13 object-contain"
       />
     </div>
-    <div className="container w-fit h-[112px] p-8 border-l-1 border-[#333333] ">
+    <div className="container w-fit h-[112px] p-8 border-l-1 border-[#333333] font-ibmplex">
       <a
         href="https://attirmidzi-personal-web.netlify.app/"
         className="text-2xl"
