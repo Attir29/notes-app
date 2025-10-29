@@ -232,24 +232,24 @@ const NoteDetailModal = ({ note, onClose, onUpdate, onDelete }) => {
         {isEditing ? (
           <>
             <input
-              className="w-full rounded-md border border-gray-700 bg-gray-900 text-gray-100 p-2 mb-3"
+              className="w-full border border-[#333333] bg-[#0a0a0a] text-gray-100 p-2 mb-3"
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
             />
             <textarea
-              className="w-full rounded-md border border-gray-700 bg-gray-900 text-gray-100 p-2 h-[200px] mb-4 resize-none"
+              className="w-full border border-[#333333] bg-[#0a0a0a] text-gray-100 p-2 h-[200px] mb-4 resize-none"
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
             />
             <div className="flex justify-between gap-3 mt-auto">
               <button
-                className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-md"
+                className="flex-1 bg-[#0a0a0a] hover:border-gray-600 border-[#333333] border-1 text-white py-2 transition-all duration-300 ease-in-out"
                 onClick={() => setIsEditing(false)}
               >
                 Cancel
               </button>
               <button
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
+                className="flex-1 bg-[#0a0a0a] hover:border-blue-700 border-[#333333] border-1 text-white py-2 transition-all duration-300 ease-in-out"
                 onClick={() => {
                   onUpdate(note.id, editTitle, editContent);
                   setIsEditing(false);
